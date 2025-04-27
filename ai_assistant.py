@@ -1,8 +1,10 @@
 import openai
 import os
+import streamlit as st
 
 # Make sure you have your OpenAI key set as an environment variable or manually
-openai.api_key = os.getenv("OPENAI_API_KEY", "your-openai-api-key-here")  # <-- Replace if needed
+# openai.api_key = os.getenv("OPENAI_API_KEY", "your-openai-api-key-here")  # <-- Replace if needed
+openai.api_key = st.secrets["OPENAI_API_KEY"]
 
 def ask_ai(user_question, session_state):
     model = session_state.model
