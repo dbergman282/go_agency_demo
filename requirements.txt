@@ -2,4 +2,4 @@ streamlit
 pandas
 scikit-learn
 xgboost
-openai
+openai==0.28
