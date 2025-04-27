@@ -30,4 +30,4 @@ def ask_ai(user_question, session_state):
         return response['choices'][0]['message']['content']
     
     except Exception as e:
-        return f\"\"\"Error querying AI: {e}\"\"\"
+        return f"Error querying AI: {e}"
