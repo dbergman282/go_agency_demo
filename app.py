@@ -118,7 +118,6 @@ elif page == "Model Training":
 
         st.success("✅ Model training complete!")
 
-        # Format and show metrics table
         st.subheader("📋 Classification Metrics")
         import numpy as np
         report_df = pd.DataFrame(report).transpose()
@@ -128,32 +127,15 @@ elif page == "Model Training":
 
         st.markdown("""
         ### 🧠 What Do These Metrics Mean?
-        
-        - **Precision** measures how often the model is *correct when it predicts a customer will respond*.  
-          Example: If precision is 0.75, then 75% of the customers the model says "yes" to are actual responders.
-        
-        - **Recall** measures how well the model *finds all the actual responders*.  
-          Example: If recall is 0.60, then the model finds 60% of all customers who actually responded.
-        
-        - **F1-Score** is the balance between precision and recall.  
-          It’s useful when both false positives and false negatives matter.
-        
-        - **Support** shows the number of actual customers in each class (0 = did not respond, 1 = responded).  
-          This tells you whether the dataset is imbalanced.
-        
-        - **Accuracy** (in the final row) shows the overall percentage of correct predictions.  
-          It can be misleading if one class is much larger than the other, so we include precision/recall too.
-        
-        **In short:**
-        - High **precision** → You’re confident in your "yes" predictions.
-        - High **recall** → You’re catching most actual responders.
-        - High **F1-score** → You're balancing both well.
+
+        - **Precision**: How often the model is correct when it predicts a customer will respond.
+        - **Recall**: How well the model finds actual responders.
+        - **F1-Score**: A balance between precision and recall.
+        - **Support**: Number of actual customers in each class.
+        - **Accuracy**: Overall correct predictions (can be misleading with imbalance).
         """)
 
-
-        # Bar plot: Precision & Recall for Class 0 and 1
         st.subheader("📊 Precision vs. Recall (by Class)")
-        import matplotlib.pyplot as plt
         fig, ax = plt.subplots()
         labels = ["Did Not Respond (0)", "Responded (1)"]
         x = np.arange(len(labels))
@@ -170,39 +152,26 @@ elif page == "Model Training":
         ax.legend()
         st.pyplot(fig)
 
+        # Extract class 1 metrics
         precision1 = report_df.loc["1", "precision"]
         recall1 = report_df.loc["1", "recall"]
         f1_1 = report_df.loc["1", "f1-score"]
-        
-        # Natural language interpretation
+
         st.markdown(f"""
         ### 🧠 Model Interpretation (for Responders)
-        
-        - **Precision = {precision1:.2f}**  
-          → When the model predicts a customer *will* respond, it's right {precision1*100:.0f}% of the time.
-        
-        - **Recall = {recall1:.2f}**  
-          → The model only identifies {recall1*100:.0f}% of the actual responders — meaning it's missing most.
-        
-        - **F1-Score = {f1_1:.2f}**  
-          → This low score confirms the model struggles to balance accuracy and completeness for responders.
-        
-        ---
-        
-        ### 📌 Interpretation:
-        The model is **very cautious** about predicting someone will respond — and when it does, it's only correct about half the time.  
-        However, it's **missing many actual responders**, which means **recall is low**. This is typical when:
-        - The positive class (responders) is rare
-        - The model isn't yet optimized to catch them
-        
-        ✅ You can improve this by trying:
-        - Resampling (oversampling responders)
-        - Tuning the model
-        - Using different thresholds instead of 0.5
+
+        - **Precision = {precision1:.2f}** → {precision1*100:.0f}% of predicted responders are actual responders.
+        - **Recall = {recall1:.2f}** → Only {recall1*100:.0f}% of real responders are being caught.
+        - **F1-Score = {f1_1:.2f}** → Balance of both is fairly low.
+
+        **Interpretation:** The model is cautious and avoids false positives, but misses many real responders.
+
+        ✅ Next steps to improve:
+        - Try oversampling positive cases
+        - Tune the model
+        - Adjust prediction thresholds
         """)
 
-
-        # ROC Curve
         st.subheader("📉 ROC Curve")
         from sklearn.metrics import roc_curve, auc
         y_score = model.predict_proba(X_test)[:, 1]
@@ -217,20 +186,17 @@ elif page == "Model Training":
         ax_roc.legend()
         st.pyplot(fig_roc)
 
-        # Feature importance
         st.subheader("🔍 Feature Importance")
         importances = model.feature_importances_
         feat_df = pd.DataFrame({
             "Feature": feature_names,
             "Importance": importances
         }).sort_values("Importance", ascending=False)
-
         fig_imp, ax_imp = plt.subplots(figsize=(8, 4))
         ax_imp.barh(feat_df["Feature"][:10][::-1], feat_df["Importance"][:10][::-1], color="slateblue")
         ax_imp.set_xlabel("Importance")
         ax_imp.set_title("Top 10 Important Features")
         st.pyplot(fig_imp)
-
 
 # Customer Comparison Page
 elif page == "Customer Comparison":
