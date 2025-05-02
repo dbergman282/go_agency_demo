@@ -109,10 +109,83 @@ elif page == "Model Training":
     if not st.session_state.selected_features:
         st.warning("Please select features first!")
     else:
-        model, report = train_model(data, st.session_state.selected_features)
-        st.session_state.model = model
-        st.subheader("🧠 Model Report:")
-        st.json(report)
+        with st.spinner("Training model..."):
+            model, report, X_test, y_test, feature_names = train_model(data, st.session_state.selected_features)
+            st.session_state.model = model
+            st.session_state.X_test = X_test
+            st.session_state.y_test = y_test
+            st.session_state.feature_names = feature_names
+
+        st.success("✅ Model training complete!")
+
+        # Format and show metrics table
+        st.subheader("📋 Classification Metrics")
+        import numpy as np
+        report_df = pd.DataFrame(report).transpose()
+        display_metrics = report_df.loc[["0", "1", "accuracy", "macro avg", "weighted avg"]]
+        clean_metrics = display_metrics[["precision", "recall", "f1-score", "support"]].round(2)
+        st.dataframe(clean_metrics)
+
+        # Bar plot: Precision & Recall for Class 0 and 1
+        st.subheader("📊 Precision vs. Recall (by Class)")
+        import matplotlib.pyplot as plt
+        fig, ax = plt.subplots()
+        labels = ["Did Not Respond (0)", "Responded (1)"]
+        x = np.arange(len(labels))
+        width = 0.35
+        precision = display_metrics.loc[["0", "1"], "precision"].values
+        recall = display_metrics.loc[["0", "1"], "recall"].values
+        ax.bar(x - width/2, precision, width, label='Precision', color='skyblue')
+        ax.bar(x + width/2, recall, width, label='Recall', color='orange')
+        ax.set_ylabel("Score")
+        ax.set_ylim(0, 1)
+        ax.set_xticks(x)
+        ax.set_xticklabels(labels)
+        ax.set_title("Model Precision and Recall by Class")
+        ax.legend()
+        st.pyplot(fig)
+
+        # Natural language interpretation
+        st.subheader("🧠 Model Interpretation")
+        precision1 = report_df.loc["1", "precision"]
+        recall1 = report_df.loc["1", "recall"]
+        f1_1 = report_df.loc["1", "f1-score"]
+        st.markdown(f"""
+        - For customers who **responded** to the campaign:
+            - Precision: **{precision1:.2f}**
+            - Recall: **{recall1:.2f}**
+            - F1-Score: **{f1_1:.2f}**
+        """)
+
+        # ROC Curve
+        st.subheader("📉 ROC Curve")
+        from sklearn.metrics import roc_curve, auc
+        y_score = model.predict_proba(X_test)[:, 1]
+        fpr, tpr, _ = roc_curve(y_test, y_score)
+        roc_auc = auc(fpr, tpr)
+        fig_roc, ax_roc = plt.subplots()
+        ax_roc.plot(fpr, tpr, label=f"AUC = {roc_auc:.2f}", color="darkorange")
+        ax_roc.plot([0, 1], [0, 1], linestyle="--", color="gray")
+        ax_roc.set_xlabel("False Positive Rate")
+        ax_roc.set_ylabel("True Positive Rate")
+        ax_roc.set_title("Receiver Operating Characteristic (ROC)")
+        ax_roc.legend()
+        st.pyplot(fig_roc)
+
+        # Feature importance
+        st.subheader("🔍 Feature Importance")
+        importances = model.feature_importances_
+        feat_df = pd.DataFrame({
+            "Feature": feature_names,
+            "Importance": importances
+        }).sort_values("Importance", ascending=False)
+
+        fig_imp, ax_imp = plt.subplots(figsize=(8, 4))
+        ax_imp.barh(feat_df["Feature"][:10][::-1], feat_df["Importance"][:10][::-1], color="slateblue")
+        ax_imp.set_xlabel("Importance")
+        ax_imp.set_title("Top 10 Important Features")
+        st.pyplot(fig_imp)
+
 
 # Customer Comparison Page
 elif page == "Customer Comparison":
