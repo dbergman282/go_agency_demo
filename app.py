@@ -126,6 +126,31 @@ elif page == "Model Training":
         clean_metrics = display_metrics[["precision", "recall", "f1-score", "support"]].round(2)
         st.dataframe(clean_metrics)
 
+        st.markdown("""
+        ### 🧠 What Do These Metrics Mean?
+        
+        - **Precision** measures how often the model is *correct when it predicts a customer will respond*.  
+          Example: If precision is 0.75, then 75% of the customers the model says "yes" to are actual responders.
+        
+        - **Recall** measures how well the model *finds all the actual responders*.  
+          Example: If recall is 0.60, then the model finds 60% of all customers who actually responded.
+        
+        - **F1-Score** is the balance between precision and recall.  
+          It’s useful when both false positives and false negatives matter.
+        
+        - **Support** shows the number of actual customers in each class (0 = did not respond, 1 = responded).  
+          This tells you whether the dataset is imbalanced.
+        
+        - **Accuracy** (in the final row) shows the overall percentage of correct predictions.  
+          It can be misleading if one class is much larger than the other, so we include precision/recall too.
+        
+        **In short:**
+        - High **precision** → You’re confident in your "yes" predictions.
+        - High **recall** → You’re catching most actual responders.
+        - High **F1-score** → You're balancing both well.
+        """)
+
+
         # Bar plot: Precision & Recall for Class 0 and 1
         st.subheader("📊 Precision vs. Recall (by Class)")
         import matplotlib.pyplot as plt
