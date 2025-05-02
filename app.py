@@ -171,16 +171,32 @@ elif page == "Model Training":
         st.pyplot(fig)
 
         # Natural language interpretation
-        st.subheader("🧠 Model Interpretation")
-        precision1 = report_df.loc["1", "precision"]
-        recall1 = report_df.loc["1", "recall"]
-        f1_1 = report_df.loc["1", "f1-score"]
         st.markdown(f"""
-        - For customers who **responded** to the campaign:
-            - Precision: **{precision1:.2f}**
-            - Recall: **{recall1:.2f}**
-            - F1-Score: **{f1_1:.2f}**
+        ### 🧠 Model Interpretation (for Responders)
+        
+        - **Precision = {precision1:.2f}**  
+          → When the model predicts a customer *will* respond, it's right {precision1*100:.0f}% of the time.
+        
+        - **Recall = {recall1:.2f}**  
+          → The model only identifies {recall1*100:.0f}% of the actual responders — meaning it's missing most.
+        
+        - **F1-Score = {f1_1:.2f}**  
+          → This low score confirms the model struggles to balance accuracy and completeness for responders.
+        
+        ---
+        
+        ### 📌 Interpretation:
+        The model is **very cautious** about predicting someone will respond — and when it does, it's only correct about half the time.  
+        However, it's **missing many actual responders**, which means **recall is low**. This is typical when:
+        - The positive class (responders) is rare
+        - The model isn't yet optimized to catch them
+        
+        ✅ You can improve this by trying:
+        - Resampling (oversampling responders)
+        - Tuning the model
+        - Using different thresholds instead of 0.5
         """)
+
 
         # ROC Curve
         st.subheader("📉 ROC Curve")
