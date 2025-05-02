@@ -170,6 +170,10 @@ elif page == "Model Training":
         ax.legend()
         st.pyplot(fig)
 
+        precision1 = report_df.loc["1", "precision"]
+        recall1 = report_df.loc["1", "recall"]
+        f1_1 = report_df.loc["1", "f1-score"]
+        
         # Natural language interpretation
         st.markdown(f"""
         ### 🧠 Model Interpretation (for Responders)
