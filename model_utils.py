@@ -4,6 +4,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.metrics import classification_report
 import xgboost as xgb
 
+
 def train_model(data, selected_features):
     X = data[selected_features]
     y = data['Response']
@@ -24,7 +25,8 @@ def train_model(data, selected_features):
 
     y_pred = model.predict(X_test)
     report = classification_report(y_test, y_pred, output_dict=True)
-    return model, report
+
+    return model, report, X_test, y_test, selected_features
 
 
 def predict_customers(data, idx1, idx2, session_state):
